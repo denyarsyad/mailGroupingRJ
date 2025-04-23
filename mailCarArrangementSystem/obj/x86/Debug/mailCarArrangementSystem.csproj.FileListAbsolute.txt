@@ -1,0 +1,9 @@
+D:\CSG\data\Disk D\Project3\mailCarArrangementSystem\mailCarArrangementSystem\bin\Debug\mailCarArrangementSystem.exe.config
+D:\CSG\data\Disk D\Project3\mailCarArrangementSystem\mailCarArrangementSystem\bin\Debug\mailCarArrangementSystem.exe
+D:\CSG\data\Disk D\Project3\mailCarArrangementSystem\mailCarArrangementSystem\bin\Debug\mailCarArrangementSystem.pdb
+D:\CSG\data\Disk D\Project3\mailCarArrangementSystem\mailCarArrangementSystem\obj\x86\Debug\mailCarArrangementSystem.Form1.resources
+D:\CSG\data\Disk D\Project3\mailCarArrangementSystem\mailCarArrangementSystem\obj\x86\Debug\mailCarArrangementSystem.Properties.Resources.resources
+D:\CSG\data\Disk D\Project3\mailCarArrangementSystem\mailCarArrangementSystem\obj\x86\Debug\mailCarArrangementSystem.csproj.GenerateResource.Cache
+D:\CSG\data\Disk D\Project3\mailCarArrangementSystem\mailCarArrangementSystem\obj\x86\Debug\mailCarArrangementSystem.exe.licenses
+D:\CSG\data\Disk D\Project3\mailCarArrangementSystem\mailCarArrangementSystem\obj\x86\Debug\mailCarArrangementSystem.exe
+D:\CSG\data\Disk D\Project3\mailCarArrangementSystem\mailCarArrangementSystem\obj\x86\Debug\mailCarArrangementSystem.pdb
