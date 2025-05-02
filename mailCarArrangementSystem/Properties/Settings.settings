@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="SendTime" Type="System.String" Scope="User">
-      <Value Profile="(Default)">110300</Value>
+      <Value Profile="(Default)">153300</Value>
     </Setting>
     <Setting Name="SendTimeSat" Type="System.String" Scope="User">
       <Value Profile="(Default)">120000</Value>

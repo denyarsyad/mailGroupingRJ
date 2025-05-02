@@ -104,7 +104,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Debug\Devart.Data.dll" />
+    <Content Include="bin\Debug\Devart.Data.Oracle.dll" />
+    <Content Include="bin\Debug\Devart.Data.Oracle.xml" />
+    <Content Include="bin\Debug\Devart.Data.xml" />
     <Content Include="bin\Debug\image.jpg" />
+    <Content Include="bin\Debug\mailCar.ico" />
+    <Content Include="bin\Debug\mailCar.png" />
     <Content Include="bin\Debug\mailCarArrangementSystem.exe" />
     <Content Include="bin\Debug\mailCarArrangementSystem.pdb" />
     <Content Include="bin\Debug\mailCarArrangementSystem.vshost.exe" />

@@ -25,7 +25,7 @@ namespace mailCarArrangementSystem.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("110300")]
+        [global::System.Configuration.DefaultSettingValueAttribute("153300")]
         public string SendTime {
             get {
                 return ((string)(this["SendTime"]));

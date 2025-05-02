@@ -48,31 +48,52 @@ namespace mailCarArrangementSystem
                 DataTable dtMail = new DataTable();
                 dt = null;
                 dtMail = null;
-                string q = "SELECT ROWNUM AS \"NO\", " +
-                           "       TO_CHAR(A.PLAN_START_TIME, 'YYYY-MM-DD', 'NLS_DATE_LANGUAGE = ENGLISH') AS \"DATE\", " +
-                           "       TO_CHAR(PLAN_START_TIME, 'HH24:MI') AS \"TIME\", " +
-                           "       C.EXTRA_COLUMN1 AS PLAT_NO, " +
-                           "       C.CODE_SHORT_NAME AS TYPE, " +
-                           "       B.CODE_SHORT_NAME AS DRIVER, " +
-                           "       B.EXTRA_COLUMN1 AS PHONE, " +
-                           "       (SELECT MAX(CODE_SHORT_NAME) " +
-                           "          FROM MSBS_CODE_MASTER " +
-                           "         WHERE CODE_CLASS_CD = 'RENTAL_CAR_DESTINATION' " +
-                           "           AND CODE_NAME     = A.RENTAL_PLACE_DESC) " +
-                           "       || ' - ' || UPPER(A.DATA_MEMO) AS DESTINATION, " +
-                           "       UPPER(A.RENTAL_USED_DESC) AS NAME_OF_EMP " +
-                           "  FROM SYS_RENTAL_DATA@RJLMES A " +
-                           "  LEFT JOIN (SELECT * " +
-                           "               FROM MSBS_CODE_MASTER@RJLMES " +
-                           "              WHERE CODE_CLASS_CD = 'MASTER_DRIVER') B " +
-                           "    ON A.EXTRA1_FLD = B.CODE_NAME  " +
-                           "  LEFT JOIN (SELECT * " +
-                           "               FROM MSBS_CODE_MASTER@RJLMES " +
-                           "              WHERE CODE_CLASS_CD = 'MASTER_CAR') C " +
-                           "    ON A.RENTAL_TYPE_CD = C.CODE_NAME    " +       
-                           " WHERE A.RENTAL_DIV = 'GA' " +
-                           "   AND TO_CHAR(A.PLAN_START_TIME, 'YYYYMMDD') BETWEEN TO_CHAR(SYSDATE, 'YYYYMMDD')AND TO_CHAR(SYSDATE+1, 'YYYYMMDD') " +
-                           "   AND A.RENTAL_STATUS = 'F'";
+                string q = "SELECT ROW_NUMBER() OVER (ORDER BY PLAN_START_TIME ASC)   AS \"NO\", " +
+                           "         TO_CHAR(A.PLAN_START_TIME, 'YYYY-MM-DD', 'NLS_DATE_LANGUAGE = ENGLISH') AS \"DATE\", " +
+                           "         TO_CHAR(PLAN_START_TIME, 'HH24:MI') AS \"TIME\", " +
+                           "         C.EXTRA_COLUMN1 AS PLAT_NO, " +
+                           "         C.CODE_SHORT_NAME AS TYPE, " +
+                           "         B.CODE_SHORT_NAME AS DRIVER, " +
+                           "         B.EXTRA_COLUMN1 AS PHONE, " +
+                           "         CASE WHEN A.RENTAL_DEPART_CD = 'OTH' THEN " +
+                           "                  (SELECT MAX(CODE_SHORT_NAME)  " +
+                           "                     FROM MSBS_CODE_MASTER@RJLMES " +
+                           "                    WHERE CODE_CLASS_CD = 'RENTAL_CAR_DEPARTURE' " +
+                           "                      AND CODE_NAME     = 'OTH') || ' - ' || A.RENTAL_DEPART_DESC " +
+                           "             ELSE (SELECT MAX(CODE_SHORT_NAME)  " +
+                           "                     FROM MSBS_CODE_MASTER@RJLMES " +
+                           "                    WHERE CODE_CLASS_CD = 'RENTAL_CAR_DEPARTURE' " +
+                           "                      AND CODE_NAME     = A.RENTAL_DEPART_CD) " +
+                           "         END                                           AS DEPARTURE, " +
+                           "         CASE WHEN A.RENTAL_PLACE_CD = 'OTH' THEN  " +
+                           "                   (SELECT MAX(CODE_SHORT_NAME)  " +
+                           "                      FROM MSBS_CODE_MASTER@RJLMES " +
+                           "                     WHERE CODE_CLASS_CD = 'RENTAL_CAR_DESTINATION' " +
+                           "                       AND CODE_NAME     = 'OTH') || ' - ' || A.RENTAL_PLACE_DESC " +
+                           "              ELSE (SELECT MAX(CODE_SHORT_NAME)  " +
+                           "                      FROM MSBS_CODE_MASTER@RJLMES " +
+                           "                     WHERE CODE_CLASS_CD = 'RENTAL_CAR_DESTINATION' " +
+                           "                       AND CODE_NAME     = A.RENTAL_PLACE_CD) " +
+                           "          END                                           AS DESTINATION, " +
+                           //"         (SELECT MAX(CODE_SHORT_NAME) " +
+                           //"             FROM MSBS_CODE_MASTER " +
+                           //"             WHERE CODE_CLASS_CD = 'RENTAL_CAR_DESTINATION' " +
+                           //"             AND CODE_NAME     = A.RENTAL_PLACE_DESC) " +
+                           //"         || ' - ' || UPPER(A.DATA_MEMO) AS DESTINATION, " +
+                           "         UPPER(A.RENTAL_USED_DESC) AS NAME_OF_EMP " +
+                           "     FROM SYS_RENTAL_DATA@RJLMES A " +
+                           "     LEFT JOIN (SELECT * " +
+                           "                 FROM MSBS_CODE_MASTER@RJLMES " +
+                           "                 WHERE CODE_CLASS_CD = 'MASTER_DRIVER') B " +
+                           "     ON A.EXTRA1_FLD = B.CODE_NAME  " +
+                           "     LEFT JOIN (SELECT * " +
+                           "                 FROM MSBS_CODE_MASTER@RJLMES " +
+                           "                 WHERE CODE_CLASS_CD = 'MASTER_CAR') C " +
+                           "     ON A.RENTAL_TYPE_CD = C.CODE_NAME   " +        
+                           "     WHERE A.RENTAL_DIV = 'GA' " +
+                           "     AND TO_CHAR(A.PLAN_START_TIME, 'YYYYMMDD') BETWEEN TO_CHAR(SYSDATE, 'YYYYMMDD')AND TO_CHAR(SYSDATE+1, 'YYYYMMDD') " +
+                           "     AND A.RENTAL_STATUS = 'F' " +
+                           "     ORDER BY A.PLAN_START_TIME ";
                 dt = Class.CmdQry.getData(q);
 
                 string q1 = "SELECT CODE_NAME     AS EMAIL, " +
@@ -193,7 +214,7 @@ namespace mailCarArrangementSystem
                 // Tabel Jadwal Hari Ini
                 html.Append("<h1>Informasi kendaraan yang dipesan akan dibagikan.</h1>");
                 html.Append("<table>");
-                html.Append("<tr><th>No</th><th>Departure Date</th><th>Time</th><th>Car No</th><th>Type</th><th>Driver</th><th>Driver's Phone No</th><th>Destination</th><th>Name</th></tr>");
+                html.Append("<tr><th>No</th><th>Departure Date</th><th>Time</th><th>Car No</th><th>Type</th><th>Driver</th><th>Driver's Phone No</th><th>Departure</th><th>Destination</th><th>Name</th></tr>");
                 foreach (DataRow row in dtData.Rows)
                 {
                     html.Append("<tr>");
