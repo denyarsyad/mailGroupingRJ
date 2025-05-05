@@ -8,5 +8,8 @@
     <Setting Name="SendTimeSat" Type="System.String" Scope="User">
       <Value Profile="(Default)">120000</Value>
     </Setting>
+    <Setting Name="sendTimeSun" Type="System.String" Scope="User">
+      <Value Profile="(Default)">070000</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

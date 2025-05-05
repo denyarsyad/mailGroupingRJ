@@ -248,6 +248,11 @@ namespace mailCarArrangementSystem
                 fnStart();
                 System.Threading.Thread.Sleep(10000);
             }
+            else if (cekDay.Contains("SUN") && cek == Properties.Settings.Default.sendTimeSun)
+            {
+                fnStart();
+                System.Threading.Thread.Sleep(10000);
+            }
             else if (!cekDay.Contains("SAT") && cek == Properties.Settings.Default.SendTime)
             {
                 fnStart();
