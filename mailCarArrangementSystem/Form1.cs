@@ -125,54 +125,58 @@ namespace mailCarArrangementSystem
         {
             try
             {
-                MailMessage mail = new MailMessage();
-                mail.From = new MailAddress("gmes.automail@changshininc.com", "GMES.AUTOMAIL", System.Text.Encoding.UTF8);
-                mail.Bcc.Add("it.deny@changshininc.com");
-                for (int i = 0; i < dtMail.Rows.Count; i++)
+                if (workYn().Contains("Y"))
                 {
-                    if (dtMail.Rows[i]["TYPE"].ToString() == "TO")
+                    MailMessage mail = new MailMessage();
+                    mail.From = new MailAddress("gmes.automail@changshininc.com", "GMES.AUTOMAIL", System.Text.Encoding.UTF8);
+                    mail.Bcc.Add("it.deny@changshininc.com");
+                    for (int i = 0; i < dtMail.Rows.Count; i++)
                     {
-                        mail.To.Add(dtMail.Rows[i]["EMAIL"].ToString());
+                        if (dtMail.Rows[i]["TYPE"].ToString() == "TO")
+                        {
+                            mail.To.Add(dtMail.Rows[i]["EMAIL"].ToString());
+                        }
+                        else if (dtMail.Rows[i]["TYPE"].ToString() == "CC")
+                        {
+                            mail.CC.Add(dtMail.Rows[i]["EMAIL"].ToString());
+                        }
+                        else if (dtMail.Rows[i]["TYPE"].ToString() == "BCC")
+                        {
+                            mail.Bcc.Add(dtMail.Rows[i]["EMAIL"].ToString());
+                        }
                     }
-                    else if (dtMail.Rows[i]["TYPE"].ToString() == "CC")
+
+                    string htmlBody = fnGenerateHtml(dt);
+                    mail.Subject = "Official Car Request";
+                    mail.Body = htmlBody;
+                    mail.IsBodyHtml = true;
+                    mail.SubjectEncoding = System.Text.Encoding.UTF8;
+                    mail.BodyEncoding = System.Text.Encoding.UTF8;
+
+                    AlternateView htmlView = AlternateView.CreateAlternateViewFromString(htmlBody, null, MediaTypeNames.Text.Html);
+                    // Tambahkan gambar sebagai LinkedResource (inline)
+                    string destinationPath = Application.StartupPath.ToString() + "\\image.jpg";
+                    LinkedResource imageResource = new LinkedResource(destinationPath, MediaTypeNames.Image.Jpeg);
+                    imageResource.ContentId = "logoImage"; // Harus sama dengan yang di cid:
+                    imageResource.TransferEncoding = TransferEncoding.Base64;
+                    htmlView.LinkedResources.Add(imageResource);
+                    mail.AlternateViews.Add(htmlView);
+
+                    SmtpClient smtpServer = new SmtpClient("jjmail2.dskorea.com", 587);
+                    smtpServer.UseDefaultCredentials = false;
+                    smtpServer.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    smtpServer.Credentials = new System.Net.NetworkCredential("gmes.automail@dskorea.com", "csg1122!@");
+                    smtpServer.EnableSsl = true;
+                    System.Net.ServicePointManager.ServerCertificateValidationCallback += (s, cert, chain, sslPolicyErrors) => true;
+                    smtpServer.Send(mail);
+
+                    cnt++;
+                    this.Invoke((MethodInvoker)delegate
                     {
-                        mail.CC.Add(dtMail.Rows[i]["EMAIL"].ToString());
-                    }
-                    else if (dtMail.Rows[i]["TYPE"].ToString() == "BCC")
-                    {
-                        mail.Bcc.Add(dtMail.Rows[i]["EMAIL"].ToString());
-                    }
+                        lblSent.Text = cnt.ToString();
+                        lblError.Text = "Last Send: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    });
                 }
-
-                string htmlBody = fnGenerateHtml(dt);
-                mail.Subject = "Official Car Request";
-                mail.Body = htmlBody;
-                mail.IsBodyHtml = true;
-                mail.SubjectEncoding = System.Text.Encoding.UTF8;
-                mail.BodyEncoding = System.Text.Encoding.UTF8;
-
-                AlternateView htmlView = AlternateView.CreateAlternateViewFromString(htmlBody, null, MediaTypeNames.Text.Html);
-                // Tambahkan gambar sebagai LinkedResource (inline)
-                string destinationPath = Application.StartupPath.ToString() + "\\image.jpg";
-                LinkedResource imageResource = new LinkedResource(destinationPath, MediaTypeNames.Image.Jpeg);
-                imageResource.ContentId = "logoImage"; // Harus sama dengan yang di cid:
-                imageResource.TransferEncoding = TransferEncoding.Base64;
-                htmlView.LinkedResources.Add(imageResource);
-                mail.AlternateViews.Add(htmlView);
-
-                SmtpClient smtpServer = new SmtpClient("jjmail2.dskorea.com", 587);
-                smtpServer.UseDefaultCredentials = false;
-                smtpServer.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtpServer.Credentials = new System.Net.NetworkCredential("gmes.automail@dskorea.com", "csg1122!@");
-                smtpServer.EnableSsl = true;
-                System.Net.ServicePointManager.ServerCertificateValidationCallback += (s, cert, chain, sslPolicyErrors) => true;
-                smtpServer.Send(mail);
-
-                cnt++;
-                this.Invoke((MethodInvoker)delegate
-                {
-                    lblSent.Text = cnt.ToString();
-                });
             }
             catch (Exception ex)
             {
@@ -248,12 +252,7 @@ namespace mailCarArrangementSystem
                 fnStart();
                 System.Threading.Thread.Sleep(10000);
             }
-            else if (cekDay.Contains("SUN") && cek == Properties.Settings.Default.sendTimeSun)
-            {
-                fnStart();
-                System.Threading.Thread.Sleep(10000);
-            }
-            else if (!cekDay.Contains("SAT") && cek == Properties.Settings.Default.SendTime)
+            else if (!cekDay.Contains("SAT") && !cekDay.Contains("SUN") && cek == Properties.Settings.Default.SendTime)
             {
                 fnStart();
                 System.Threading.Thread.Sleep(10000);
@@ -315,6 +314,44 @@ namespace mailCarArrangementSystem
                 this.WindowState = FormWindowState.Minimized;
                 this.Hide();
             }
+        }
+
+        private string workYn()
+        {
+            string rtn = "";
+            DataTable dtResult = null;
+            try
+            {
+                string q = "SELECT MAX(ALL_WORK_FLAG) AS WORK_YN " +
+                           "   FROM ( " +
+                           "         SELECT TL_DATE , " +
+                           "               B.DAY_OF_WEEK , " +
+                           "               B.DAY_TYPE , " +
+                           "               B.ALL_WORK_FLAG , " +
+                           "               B.HOLIDAY_TYPE , " +
+                           "               B.HOLIDAY_NM , " +
+                           "               B.RAMADAN_FLAG , " +
+                           "               B.REMARKS " +
+                           "             FROM PW_TL_HOLIDAY_DT_T@HUBICJJ B " +
+                           "             WHERE SERVICE_ID                  = 'JJ' " +
+                           "             AND B.DATASET                     = 'SHARE' " +
+                           "             AND B.HOLIDAY_SCHED               = 'JJ_CAL' " +
+                           "             AND TO_CHAR(B.TL_DATE,'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') " +
+                           "        ) ";
+                dtResult = Class.CmdQry.getData(q);
+                if (dtResult.Rows.Count > 0)
+                {
+                    rtn = dtResult.Rows[0][0].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    lblError.Text = ex.Message;
+                });
+            }
+            return rtn;
         }
     }
 }

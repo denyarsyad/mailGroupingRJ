@@ -25,7 +25,7 @@ namespace mailCarArrangementSystem.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("153300")]
+        [global::System.Configuration.DefaultSettingValueAttribute("150000")]
         public string SendTime {
             get {
                 return ((string)(this["SendTime"]));
@@ -44,18 +44,6 @@ namespace mailCarArrangementSystem.Properties {
             }
             set {
                 this["SendTimeSat"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("070000")]
-        public string sendTimeSun {
-            get {
-                return ((string)(this["sendTimeSun"]));
-            }
-            set {
-                this["sendTimeSun"] = value;
             }
         }
     }
